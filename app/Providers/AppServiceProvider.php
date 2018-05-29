@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
+use rsporteman\Validator\Cnpj;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -13,7 +15,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        Validator::extend('cnpj', function ($attribute, $value, $parameters, $validator) {
+            $validator = new Cnpj();
+            return $validator->isValid($value);
+        }, 'Cnpj Inválido!');
     }
 
     /**

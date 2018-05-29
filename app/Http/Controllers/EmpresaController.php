@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Empresa;
+use App\Http\Requests\EmpresaRequest;
 use Form;
 use Illuminate\Http\Request;
 
@@ -18,7 +19,7 @@ class EmpresaController extends Controller
     public function index(Request $request)
     {
         $empresas = $this->empresa->paginate(5);
-        return view('empresa.index', [  'empresas' => $empresas]);
+        return view('empresa.index', ['empresas' => $empresas]);
     }
 
     public function create()
@@ -27,13 +28,13 @@ class EmpresaController extends Controller
             'method' => 'post',
             'route' => ['empresa.store'],
         ];
-        return view('empresa.create', ['options'=>$options]);
+        return view('empresa.create', ['options' => $options]);
     }
 
-    public function store(Request $request)
+    public function store(EmpresaRequest $request)
     {
         $empresa = $this->empresa->newInstance($request->all());
-        if($empresa->save()) {
+        if ($empresa->save()) {
             return redirect()->route('empresa.show', $empresa->id);
         }
         throw new \Exception('Não foi possivél salvar empresa');
@@ -52,12 +53,15 @@ class EmpresaController extends Controller
             'method' => 'patch',
             'route' => ['empresa.update', $empresa->id],
         ];
-        return view('empresa.edit', ['empresa' => $empresa, 'options'=>$options]);
+        return view('empresa.edit', ['empresa' => $empresa, 'options' => $options]);
     }
 
-    public function update(Request $request, Empresa $empresa)
+    public function update(EmpresaRequest $request, Empresa $empresa)
     {
-        if($empresa->update($request->toArray())) {
+        if($request->validated()){
+            return redirect()->route('empresa.update', $empresa->id)->withInput();
+        }
+        if ($empresa->update($request->toArray())) {
             return redirect()->route('empresa.show', $empresa->id);
         }
         throw new \Exception('Não foi possivél atualizar empresa');
@@ -65,7 +69,7 @@ class EmpresaController extends Controller
 
     public function destroy(Empresa $empresa)
     {
-        if($empresa->delete()){
+        if ($empresa->delete()) {
             return redirect()->route('empresa.index');
         }
         throw new \Exception('Não foi possivél deletar empresa');
